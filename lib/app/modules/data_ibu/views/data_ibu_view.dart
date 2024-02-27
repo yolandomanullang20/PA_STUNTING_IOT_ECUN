@@ -135,7 +135,7 @@ class DataIbuView extends GetView<DataIbuController> {
                                                 Get.defaultDialog(
                                                   title: 'Hapus Data',
                                                   middleText:
-                                                      'Apakah anda yakin ingin menghapus data ini?',
+                                                      'Apakah anda yakin ingin menghapus data ini?\nData yang dihapus tidak dapat dikembalikan.',
                                                   textConfirm: 'Ya',
                                                   backgroundColor: Colors.white,
                                                   textCancel: 'Tidak',
@@ -162,7 +162,13 @@ class DataIbuView extends GetView<DataIbuController> {
                                                     controller
                                                         .listDataIbu[index]),
                                                 child: const Icon(Icons.edit)),
-                                            const Icon(Icons.arrow_forward_ios),
+                                            InkWell(
+                                                onTap: () => Get.toNamed(
+                                                      '/data-anak',
+                                                      arguments: item,
+                                                    ),
+                                                child: Icon(
+                                                    Icons.arrow_forward_ios)),
                                           ],
                                         ),
                                       ),
@@ -195,6 +201,11 @@ class DataIbuView extends GetView<DataIbuController> {
             decoration: const InputDecoration(
               labelText: 'Nama Ibu',
             ),
+            onChanged: (value) => {
+              nameController.text = value.toUpperCase(),
+              nameController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: nameController.text.length))
+            },
           ),
           actions: <Widget>[
             TextButton(
@@ -232,6 +243,11 @@ class DataIbuView extends GetView<DataIbuController> {
           content: TextField(
             controller: motherNameController,
             decoration: const InputDecoration(hintText: "Mother's Name"),
+            onChanged: (value) => {
+              motherNameController.text = value.toUpperCase(),
+              motherNameController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: motherNameController.text.length))
+            },
           ),
           actions: <Widget>[
             TextButton(

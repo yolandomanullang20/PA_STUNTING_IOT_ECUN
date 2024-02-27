@@ -1,75 +1,89 @@
+import 'dart:async';
 import 'package:get/get.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:stunting_app/database/database_halper.dart';
 import 'package:stunting_app/models/anak_model.dart';
+import 'package:stunting_app/models/ibu_model.dart';
 
 class DataAnakController extends GetxController {
-  static Future<List<AnakModel>> getAll() async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('children');
+  late IbuModel ibuModelArgument;
+  late RxList listDataAnak = [].obs;
+  var isLoadingGetData = false.obs;
+  var selectedGender = "".obs;
 
-    print('Data: $maps');
+  var dummyData = false.obs;
 
-    return List.generate(maps.length, (i) {
-      return AnakModel.fromMap(maps[i]);
-    });
-  }
-
-  static Future<AnakModel> getById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('children', where: 'id = ?', whereArgs: [id]);
-
-    if (maps.isNotEmpty) {
-      return AnakModel.fromMap(maps.first);
-    } else {
-      throw Exception('ID $id not found');
+  Future<List<AnakModel>> getAllByIdMother(int idMother) async {
+    listDataAnak.clear();
+    try {
+      isLoadingGetData.value = true;
+      final db = await DatabaseHelper.instance.database;
+      final List<Map<String, dynamic>> maps = await db.query('children',
+          where: 'motherId = ?', whereArgs: [ibuModelArgument.id!]);
+      return List.generate(maps.length, (i) {
+        listDataAnak.add(AnakModel(
+          id: maps[i]['id'],
+          name: maps[i]['name'],
+          motherId: maps[i]['motherId'],
+          age: maps[i]['age'],
+        ));
+        return AnakModel(
+          id: maps[i]['id'],
+          name: maps[i]['name'],
+          motherId: maps[i]['motherId'],
+          age: maps[i]['age'],
+        );
+      });
+    } finally {
+      isLoadingGetData.value = false;
     }
   }
 
-  static Future<List<AnakModel>> getByIdMother(int motherId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db
-        .query('children', where: 'motherId = ?', whereArgs: [motherId]);
+  Future<void> addChildren(AnakModel anakModel) async {
+    // final db = await DatabaseHelper.instance.database;
+    // await db.insert('mothers', mother.toMap(),
+    //     conflictAlgorithm: ConflictAlgorithm.replace);
 
-    return List.generate(maps.length, (i) {
-      return AnakModel.fromMap(maps[i]);
-    });
+    final db = await DatabaseHelper.instance.database;
+    final Map<String, dynamic> motherMap = anakModel.toMap();
+
+    // Remove the id from the map because SQLite will automatically assign it
+    motherMap.remove('id');
+
+    await db.insert('children', motherMap,
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  static Future<void> deleteAll() async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('children');
-  }
-
-  static Future<void> deleteById(int id) async {
+  Future<void> deleteChildren(int id) async {
     final db = await DatabaseHelper.instance.database;
     await db.delete('children', where: 'id = ?', whereArgs: [id]);
   }
 
-  static Future<void> updateById(int id, Map<String, dynamic> newValues) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.update('children', newValues, where: 'id = ?', whereArgs: [id]);
-  }
+  // Future<void> insertDummyData() async {
+  //   if (dummyData.value == false) {
+  //     List<AnakModel> anakModel = [
+  //       AnakModel(name: "Anak 1", age: 1, motherId: 1),
+  //       AnakModel(name: "Anak 2", age: 2, motherId: 1),
+  //       AnakModel(name: "Anak 3", age: 3, motherId: 1),
+  //       AnakModel(name: "Anak 4", age: 4, motherId: 1),
+  //       AnakModel(name: "Anak 5", age: 5, motherId: 1),
+  //     ];
 
-  static Future<void> insertDummyData() async {
-    final db = await DatabaseHelper.instance.database;
-    List<Map<String, dynamic>> dummyData = [
-      {'id': 1, 'name': 'Child 0', 'mother_id': 1, 'age': 5},
-      {'id': 2, 'name': 'Child 1', 'mother_id': 1, 'age': 6},
-      {'id': 3, 'name': 'Child 2', 'mother_id': 1, 'age': 7},
-      {'id': 4, 'name': 'Child 3', 'mother_id': 1, 'age': 8},
-      {'id': 5, 'name': 'Child 4', 'mother_id': 1, 'age': 9},
-    ];
-    dummyData.forEach((data) async {
-      await db.insert('children', data);
-    });
-  }
+  //     for (var item in anakModel) {
+  //       await addChildren(item);
+  //     }
+  //     dummyData.value = true;
+  //   }
+  //   //5 TEMP DATA
+  // }
 
   @override
   void onInit() {
     super.onInit();
     DatabaseHelper.instance.database;
-    insertDummyData();
-    getAll();
+    ibuModelArgument = Get.arguments;
+    // insertDummyData();
+    getAllByIdMother(ibuModelArgument.id!);
   }
 
   @override
