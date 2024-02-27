@@ -17,7 +17,7 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'stunting.db');
+    String path = join(documentsDirectory.path, 'stunting1.db');
     print(path);
     return await openDatabase(path,
         version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);

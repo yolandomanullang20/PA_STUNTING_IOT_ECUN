@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:get/get.dart';
 import 'package:stunting_app/models/ibu_model.dart';
@@ -30,7 +31,7 @@ class DataIbuView extends GetView<DataIbuController> {
                         size: 36,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 40.0,
                     ),
                     Text(
@@ -49,7 +50,7 @@ class DataIbuView extends GetView<DataIbuController> {
                     width: 170,
                     decoration: BoxDecoration(
                       color: blueColorPrimer,
-                      borderRadius: BorderRadius.all(
+                      borderRadius: const BorderRadius.all(
                         Radius.circular(
                           14.0,
                         ),
@@ -59,7 +60,7 @@ class DataIbuView extends GetView<DataIbuController> {
                       padding: const EdgeInsets.all(5.0),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.add,
                             color: Colors.white,
                             size: 22,
@@ -79,50 +80,96 @@ class DataIbuView extends GetView<DataIbuController> {
                 const SizedBox(
                   height: 20.0,
                 ),
-                FutureBuilder(
-                  future: controller.getAllMothers(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<IbuModel>> snapshot) {
-                    if (snapshot.data == null) return Container();
-
-                    return ListView.builder(
-                      itemCount: snapshot.data?.length,
-                      shrinkWrap: true,
-                      physics: const ScrollPhysics(),
-                      itemBuilder: (BuildContext context, int index) {
-                        var item = snapshot.data![index];
-                        return Card(
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.grey[200],
-                              backgroundImage: const NetworkImage(
-                                "https://i.ibb.co/QrTHd59/woman.jpg",
-                              ),
-                            ),
-                            title: Text(
-                              "${item.namaIbu}",
-                              style: poppinsBlack.copyWith(fontSize: 16),
-                            ),
-                            subtitle: Text(
-                              item.namaIbu as String,
-                            ),
-                            trailing: Wrap(
-                              spacing: 14, // space between two icons
-                              children: <Widget>[
-                                Icon(
-                                  Icons.delete,
-                                  color: pinkColorPrimer,
-                                ),
-                                Icon(Icons.edit),
-                                Icon(Icons.arrow_forward_ios),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                //create search box
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Cari Data Ibu',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onChanged: (value) =>
+                      controller.getAllMothers(searchTerm: value),
                 ),
+                const SizedBox(
+                  height: 20.0,
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height - 300,
+                  child: SingleChildScrollView(
+                    child: Obx(
+                      () => controller.isLoadingGetData.value
+                          ? const Center(child: CircularProgressIndicator())
+                          : GetBuilder<DataIbuController>(
+                              init: DataIbuController(),
+                              builder: (controller) {
+                                return ListView.builder(
+                                  itemCount: controller.listDataIbu.length,
+                                  shrinkWrap: true,
+                                  physics: const ScrollPhysics(),
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    var item = controller.listDataIbu[index];
+                                    return Card(
+                                      child: ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundColor: Colors.grey[200],
+                                          backgroundImage: const NetworkImage(
+                                            "https://i.ibb.co/QrTHd59/woman.jpg",
+                                          ),
+                                        ),
+                                        title: Text(
+                                          "${item.namaIbu}",
+                                          style: poppinsBlack.copyWith(
+                                              fontSize: 16),
+                                        ),
+                                        subtitle: Text(
+                                          item.namaIbu as String,
+                                        ),
+                                        trailing: Wrap(
+                                          spacing:
+                                              14, // space between two icons
+                                          children: <Widget>[
+                                            GestureDetector(
+                                              onTap: () {
+                                                Get.defaultDialog(
+                                                  title: 'Hapus Data',
+                                                  middleText:
+                                                      'Apakah anda yakin ingin menghapus data ini?',
+                                                  textConfirm: 'Ya',
+                                                  backgroundColor: Colors.white,
+                                                  textCancel: 'Tidak',
+                                                  confirmTextColor:
+                                                      Colors.white,
+                                                  buttonColor: pinkColorBold,
+                                                  cancelTextColor: Colors.black,
+                                                  onConfirm: () {
+                                                    controller.deleteMotherData(
+                                                        item.id!);
+                                                    controller.getAllMothers();
+                                                    Get.back();
+                                                  },
+                                                );
+                                              },
+                                              child: Icon(
+                                                Icons.delete,
+                                                color: pinkColorPrimer,
+                                              ),
+                                            ),
+                                            const Icon(Icons.edit),
+                                            const Icon(Icons.arrow_forward_ios),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),

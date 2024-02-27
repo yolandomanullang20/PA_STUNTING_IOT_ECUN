@@ -4,7 +4,8 @@ import 'package:stunting_app/database/database_halper.dart';
 import 'package:stunting_app/models/ibu_model.dart';
 
 class DataIbuController extends GetxController {
-  late List<IbuModel> listDataIbu = [];
+  late RxList listDataIbu = [].obs;
+  var isLoadingGetData = false.obs;
 
   Future<void> addMother(IbuModel mother) async {
     final db = await DatabaseHelper.instance.database;
@@ -12,24 +13,66 @@ class DataIbuController extends GetxController {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<IbuModel>> getAllMothers() async {
-    final db = await DatabaseHelper.instance.database;
-    final List<Map<String, dynamic>> maps = await db.query('mothers');
-    return List.generate(maps.length, (i) {
-      listDataIbu.add(IbuModel(
-        id: maps[i]['id'],
-        namaIbu: maps[i]['namaIbu'],
-      ));
-      return IbuModel(
-        id: maps[i]['id'],
-        namaIbu: maps[i]['namaIbu'],
-      );
-    });
+  // Future<List<IbuModel>> getAllMothers() async {
+  //   listDataIbu.clear();
+  //   try {
+  //     isLoadingGetData.value = true;
+  //     final db = await DatabaseHelper.instance.database;
+  //     final List<Map<String, dynamic>> maps = await db.query('mothers');
+  //     return List.generate(maps.length, (i) {
+  //       listDataIbu.add(IbuModel(
+  //         id: maps[i]['id'],
+  //         namaIbu: maps[i]['namaIbu'],
+  //       ));
+  //       return IbuModel(
+  //         id: maps[i]['id'],
+  //         namaIbu: maps[i]['namaIbu'],
+  //       );
+  //     });
+  //   } finally {
+  //     isLoadingGetData.value = false;
+  //   }
+  // }
+
+  Future<List<IbuModel>> getAllMothers({String? searchTerm}) async {
+    listDataIbu.clear();
+    try {
+      isLoadingGetData.value = true;
+      final db = await DatabaseHelper.instance.database;
+      final List<Map<String, dynamic>> maps = searchTerm != null
+          ? await db.query(
+              'mothers',
+              where: 'namaIbu LIKE ?',
+              whereArgs: ['%$searchTerm%'],
+            )
+          : await db.query('mothers');
+      return List.generate(maps.length, (i) {
+        listDataIbu.add(IbuModel(
+          id: maps[i]['id'],
+          namaIbu: maps[i]['namaIbu'],
+        ));
+        return IbuModel(
+          id: maps[i]['id'],
+          namaIbu: maps[i]['namaIbu'],
+        );
+      });
+    } finally {
+      isLoadingGetData.value = false;
+    }
   }
 
   Future<void> deleteAllMotherData() async {
     final db = await DatabaseHelper.instance.database;
     await db.delete('mothers');
+  }
+
+  Future<void> deleteMotherData(int id) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.delete(
+      'mothers',
+      where: "id = ?",
+      whereArgs: [id],
+    );
   }
 
   Future<void> updateMotherData(IbuModel mother) async {
