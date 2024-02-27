@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:get/get.dart';
 import 'package:stunting_app/models/ibu_model.dart';
@@ -44,7 +43,7 @@ class DataIbuView extends GetView<DataIbuController> {
                   height: 40.0,
                 ),
                 InkWell(
-                  onTap: () => Get.toNamed('/data-anak'),
+                  onTap: () => showAddMotherDialog(context),
                   child: Container(
                     height: 40,
                     width: 170,
@@ -157,7 +156,12 @@ class DataIbuView extends GetView<DataIbuController> {
                                                 color: pinkColorPrimer,
                                               ),
                                             ),
-                                            const Icon(Icons.edit),
+                                            InkWell(
+                                                onTap: () => editMother(
+                                                    context,
+                                                    controller
+                                                        .listDataIbu[index]),
+                                                child: const Icon(Icons.edit)),
                                             const Icon(Icons.arrow_forward_ios),
                                           ],
                                         ),
@@ -175,6 +179,84 @@ class DataIbuView extends GetView<DataIbuController> {
           ),
         ),
       ),
+    );
+  }
+
+  void showAddMotherDialog(BuildContext context) {
+    TextEditingController nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Tambah Data Ibu'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              labelText: 'Nama Ibu',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Save'),
+              onPressed: () {
+                // Save the mother's name
+                String motherName = nameController.text;
+                IbuModel mother = IbuModel(namaIbu: motherName, id: 0);
+                controller.addMother(mother);
+                controller.listDataIbu.clear();
+                controller.getAllMothers();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void editMother(BuildContext context, IbuModel mother) {
+    TextEditingController motherNameController =
+        TextEditingController(text: mother.namaIbu);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Data Ibu'),
+          content: TextField(
+            controller: motherNameController,
+            decoration: const InputDecoration(hintText: "Mother's Name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Update'),
+              onPressed: () {
+                String motherName = motherNameController.text.trim();
+                if (motherName.isNotEmpty) {
+                  IbuModel updatedMother =
+                      IbuModel(namaIbu: motherName, id: mother.id);
+                  controller.updateMotherData(updatedMother);
+                  controller.listDataIbu.clear();
+                  controller.getAllMothers();
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
