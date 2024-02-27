@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:stunting_app/models/anak_model.dart';
@@ -74,88 +75,95 @@ class DataAnakView extends GetView<DataAnakController> {
                             : GetBuilder<DataAnakController>(
                                 init: DataAnakController(),
                                 builder: (controller) {
-                                  return ListView.builder(
-                                    itemCount: controller.listDataAnak.length,
-                                    shrinkWrap: true,
-                                    physics: const ScrollPhysics(),
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      var item = controller.listDataAnak[index];
-                                      return Card(
-                                        child: ListTile(
-                                          leading: CircleAvatar(
-                                            backgroundColor: Colors.grey[200],
-                                            backgroundImage: const NetworkImage(
-                                              "https://i.ibb.co/QrTHd59/woman.jpg",
+                                  if (controller.listDataAnak.isEmpty) {
+                                    return Center(
+                                      child: Text("Data Anak Kosong"),
+                                    );
+                                  } else {
+                                    return ListView.builder(
+                                      itemCount: controller.listDataAnak.length,
+                                      shrinkWrap: true,
+                                      physics: const ScrollPhysics(),
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var item =
+                                            controller.listDataAnak[index];
+                                        return Card(
+                                          child: ListTile(
+                                            leading: CircleAvatar(
+                                              backgroundColor: Colors.grey[200],
+                                              backgroundImage:
+                                                  const NetworkImage(
+                                                "https://i.ibb.co/QrTHd59/woman.jpg",
+                                              ),
+                                            ),
+                                            title: Text(
+                                              "${item.name} - ${item.age} Bulan",
+                                              style: poppinsBlack.copyWith(
+                                                  fontSize: 16),
+                                            ),
+                                            subtitle: Text(
+                                                item.jenisKelamin == 'L'
+                                                    ? 'Laki-laki'
+                                                    : 'Perempuan',
+                                                style: poppinsBlack.copyWith(
+                                                    fontSize: 14)),
+                                            trailing: Wrap(
+                                              spacing:
+                                                  14, // space between two icons
+                                              children: <Widget>[
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Get.defaultDialog(
+                                                      title: 'Hapus Data',
+                                                      middleText:
+                                                          'Apakah anda yakin ingin menghapus data ini?\nData yang dihapus tidak dapat dikembalikan.',
+                                                      textConfirm: 'Ya',
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      textCancel: 'Tidak',
+                                                      confirmTextColor:
+                                                          Colors.white,
+                                                      buttonColor:
+                                                          pinkColorBold,
+                                                      cancelTextColor:
+                                                          Colors.black,
+                                                      onConfirm: () {
+                                                        controller
+                                                            .deleteChildren(
+                                                                item.id!);
+                                                        controller.getAllByIdMother(
+                                                            controller
+                                                                .ibuModelArgument
+                                                                .id!);
+                                                        Get.back();
+                                                      },
+                                                    );
+                                                  },
+                                                  child: Icon(
+                                                    Icons.delete,
+                                                    color: pinkColorPrimer,
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                    onTap: () => editChilder(
+                                                        context, item),
+                                                    child:
+                                                        const Icon(Icons.edit)),
+                                                InkWell(
+                                                    onTap: () => Get.toNamed(
+                                                          '/data-anak',
+                                                          arguments: item,
+                                                        ),
+                                                    child: Icon(Icons
+                                                        .arrow_forward_ios)),
+                                              ],
                                             ),
                                           ),
-                                          title: Text(
-                                            "${item.name} - ${item.age} Bulan",
-                                            style: poppinsBlack.copyWith(
-                                                fontSize: 16),
-                                          ),
-                                          subtitle: Text(
-                                              item.jenisKelamin == 'L'
-                                                  ? 'Laki-laki'
-                                                  : 'Perempuan',
-                                              style: poppinsBlack.copyWith(
-                                                  fontSize: 14)),
-                                          trailing: Wrap(
-                                            spacing:
-                                                14, // space between two icons
-                                            children: <Widget>[
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Get.defaultDialog(
-                                                    title: 'Hapus Data',
-                                                    middleText:
-                                                        'Apakah anda yakin ingin menghapus data ini?\nData yang dihapus tidak dapat dikembalikan.',
-                                                    textConfirm: 'Ya',
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    textCancel: 'Tidak',
-                                                    confirmTextColor:
-                                                        Colors.white,
-                                                    buttonColor: pinkColorBold,
-                                                    cancelTextColor:
-                                                        Colors.black,
-                                                    onConfirm: () {
-                                                      controller.deleteChildren(
-                                                          item.id!);
-                                                      controller.getAllByIdMother(
-                                                          controller
-                                                              .ibuModelArgument
-                                                              .id!);
-                                                      Get.back();
-                                                    },
-                                                  );
-                                                },
-                                                child: Icon(
-                                                  Icons.delete,
-                                                  color: pinkColorPrimer,
-                                                ),
-                                              ),
-                                              InkWell(
-                                                  onTap: () => {},
-                                                  //  editMother(
-                                                  //     context,
-                                                  //     controller
-                                                  //         .listDataIbu[index]),
-                                                  child:
-                                                      const Icon(Icons.edit)),
-                                              InkWell(
-                                                  onTap: () => Get.toNamed(
-                                                        '/data-anak',
-                                                        arguments: item,
-                                                      ),
-                                                  child: Icon(
-                                                      Icons.arrow_forward_ios)),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
+                                        );
+                                      },
+                                    );
+                                  }
                                 },
                               ),
                       ),
@@ -171,7 +179,6 @@ class DataAnakView extends GetView<DataAnakController> {
   void showAddChildrenDialog(BuildContext context, IbuModel ibuModel) {
     TextEditingController nameController = TextEditingController();
     TextEditingController ageController = TextEditingController();
-    //RADIO BUTON CONTROLLER
 
     showDialog(
       context: context,
@@ -185,8 +192,11 @@ class DataAnakView extends GetView<DataAnakController> {
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Nama Anak',
+                  labelText: 'Nama Anak (Text Only)',
                 ),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'^[a-z A-Z\s]*$')),
+                ],
                 onChanged: (value) => {
                   nameController.text = value.toUpperCase(),
                   nameController.selection = TextSelection.fromPosition(
@@ -196,8 +206,13 @@ class DataAnakView extends GetView<DataAnakController> {
               TextField(
                 controller: ageController,
                 decoration: const InputDecoration(
-                  labelText: 'Umur Anak',
+                  labelText: 'Umur Anak (0-24 Bulan)',
                 ),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'^([0-9]|1[0-9]|2[0-4])$')),
+                ],
                 onChanged: (value) => {
                   ageController.text = value.toUpperCase(),
                   ageController.selection = TextSelection.fromPosition(
@@ -240,14 +255,6 @@ class DataAnakView extends GetView<DataAnakController> {
             TextButton(
               child: const Text('Save'),
               onPressed: () {
-                // Save the mother's name
-                // String motherName = nameController.text;
-                // IbuModel mother = IbuModel(namaIbu: motherName, id: 0);
-                // controller.addMother(mother);
-                // controller.listDataIbu.clear();
-                // controller.getAllMothers();
-
-                // Save the children's name
                 AnakModel anak = AnakModel(
                   name: nameController.text,
                   age: int.parse(ageController.text),
@@ -258,6 +265,85 @@ class DataAnakView extends GetView<DataAnakController> {
                 controller.listDataAnak.clear();
                 controller.getAllByIdMother(ibuModel.id!);
                 Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void editChilder(BuildContext context, AnakModel anakModel) {
+    TextEditingController nameController =
+        TextEditingController(text: anakModel.name!);
+    TextEditingController ageController =
+        TextEditingController(text: anakModel.age.toString());
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Data Anak'),
+          content: Wrap(
+            runSpacing: 10,
+            spacing: 10,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Anak (Text Only)',
+                ),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'^[a-z A-Z\s]*$')),
+                ],
+                onChanged: (value) => {
+                  nameController.text = value.toUpperCase(),
+                  nameController.selection = TextSelection.fromPosition(
+                      TextPosition(offset: nameController.text.length))
+                },
+              ),
+              TextField(
+                controller: ageController,
+                decoration: const InputDecoration(
+                  labelText: 'Umur Anak',
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'^([0-9]|1[0-9]|2[0-4])$')),
+                ],
+                onChanged: (value) => {
+                  ageController.text = value.toUpperCase(),
+                  ageController.selection = TextSelection.fromPosition(
+                      TextPosition(offset: ageController.text.length))
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Update'),
+              onPressed: () {
+                String namaAnak = nameController.text.trim();
+                int umurAnak = int.parse(ageController.text.trim());
+                if (namaAnak.isNotEmpty && umurAnak.toString().isNotEmpty) {
+                  AnakModel anakUpdate = AnakModel(
+                      id: anakModel.id,
+                      name: namaAnak,
+                      age: umurAnak,
+                      motherId: anakModel.motherId,
+                      jenisKelamin: anakModel.jenisKelamin);
+                  controller.updateChildren(anakUpdate);
+                  controller.listDataAnak.clear();
+                  controller.getAllByIdMother(controller.ibuModelArgument.id!);
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],

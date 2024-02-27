@@ -26,12 +26,14 @@ class DataAnakController extends GetxController {
           name: maps[i]['name'],
           motherId: maps[i]['motherId'],
           age: maps[i]['age'],
+          jenisKelamin: maps[i]['jenisKelamin'],
         ));
         return AnakModel(
           id: maps[i]['id'],
           name: maps[i]['name'],
           motherId: maps[i]['motherId'],
           age: maps[i]['age'],
+          jenisKelamin: maps[i]['jenisKelamin'],
         );
       });
     } finally {
@@ -57,6 +59,16 @@ class DataAnakController extends GetxController {
   Future<void> deleteChildren(int id) async {
     final db = await DatabaseHelper.instance.database;
     await db.delete('children', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> updateChildren(AnakModel anakModel) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.update(
+      'children',
+      anakModel.toMap(),
+      where: 'id = ?',
+      whereArgs: [anakModel.id],
+    );
   }
 
   // Future<void> insertDummyData() async {
