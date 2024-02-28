@@ -17,7 +17,7 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'stunting10.db');
+    String path = join(documentsDirectory.path, 'stunting100.db');
     print(path);
     return await openDatabase(path,
         version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
@@ -39,6 +39,30 @@ class DatabaseHelper {
         age INTEGER,
         jenisKelamin TEXT,
         FOREIGN KEY (motherId) REFERENCES mothers(id) ON DELETE CASCADE
+      )
+      ''');
+    await db.execute('''
+      CREATE TABLE tb_umur (
+        id INTEGER PRIMARY KEY,
+        idAnak INTEGER,
+        zIndeks REAL,
+        ambangAtas REAL,
+        ambangBawah REAL,
+        status TEXT,
+        createdDate DATE,
+        FOREIGN KEY (idAnak) REFERENCES children(id) ON DELETE CASCADE
+      )
+      ''');
+    await db.execute('''
+      CREATE TABLE bb_umur (
+        id INTEGER PRIMARY KEY,
+        idAnak INTEGER,
+        zIndeks REAL,
+        ambangAtas REAL,
+        ambangBawah REAL,
+        status TEXT,
+        createdDate DATE,
+        FOREIGN KEY (idAnak) REFERENCES children(id) ON DELETE CASCADE
       )
       ''');
   }
