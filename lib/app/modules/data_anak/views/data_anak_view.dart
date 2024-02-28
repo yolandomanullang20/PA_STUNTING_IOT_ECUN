@@ -167,8 +167,12 @@ class DataAnakView extends GetView<DataAnakController> {
                                                         const Icon(Icons.edit)),
                                                 InkWell(
                                                     onTap: () => Get.toNamed(
-                                                          '/data-anak',
-                                                          arguments: item,
+                                                          '/data-transaksi',
+                                                          arguments: [
+                                                            item,
+                                                            controller
+                                                                .ibuModelArgument
+                                                          ],
                                                         ),
                                                     child: Icon(Icons
                                                         .arrow_forward_ios)),

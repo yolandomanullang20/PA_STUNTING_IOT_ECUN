@@ -4,6 +4,8 @@ import 'package:stunting_app/app/modules/data_anak/bindings/data_anak_binding.da
 import 'package:stunting_app/app/modules/data_anak/views/data_anak_view.dart';
 import 'package:stunting_app/app/modules/data_ibu/bindings/data_ibu_binding.dart';
 import 'package:stunting_app/app/modules/data_ibu/views/data_ibu_view.dart';
+import 'package:stunting_app/app/modules/data_transaksi/bindings/data_transaksi_binding.dart';
+import 'package:stunting_app/app/modules/data_transaksi/views/data_transaksi_view.dart';
 
 part 'app_routes.dart';
 
@@ -22,6 +24,11 @@ class AppPages {
       name: _Paths.DATA_ANAK,
       page: () => DataAnakView(),
       binding: DataAnakBinding(),
+    ),
+    GetPage(
+      name: _Paths.DATA_TRANSAKSI,
+      page: () => DataTransaksiView(),
+      binding: DataTransaksiBinding(),
     ),
   ];
 }
