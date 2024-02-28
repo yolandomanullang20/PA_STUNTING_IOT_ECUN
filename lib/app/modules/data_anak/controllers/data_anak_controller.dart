@@ -13,13 +13,31 @@ class DataAnakController extends GetxController {
 
   var dummyData = false.obs;
 
-  Future<List<AnakModel>> getAllByIdMother(int idMother) async {
+  Future<List<AnakModel>> getAllByIdMother(int idMother,
+      {String? searchTerm}) async {
     listDataAnak.clear();
     try {
       isLoadingGetData.value = true;
       final db = await DatabaseHelper.instance.database;
-      final List<Map<String, dynamic>> maps = await db.query('children',
-          where: 'motherId = ?', whereArgs: [ibuModelArgument.id!]);
+      // final List<Map<String, dynamic>> maps = await db.query('children',
+      //     where: 'motherId = ?', whereArgs: [ibuModelArgument.id!]);
+
+      final List<Map<String, dynamic>> maps = searchTerm != null
+          ? await db.query(
+              'children',
+              where: 'motherId = ? AND name LIKE ?',
+              whereArgs: [idMother, '%$searchTerm%'],
+            )
+          : await db
+              .query('children', where: 'motherId = ?', whereArgs: [idMother]);
+
+      // final List<Map<String, dynamic>> maps = searchTerm != null
+      //     ? await db.query(
+      //         'mothers',
+      //         where: 'namaIbu LIKE ?',
+      //         whereArgs: ['%$searchTerm%'],
+      //       )
+      //     : await db.query('mothers');
       return List.generate(maps.length, (i) {
         listDataAnak.add(AnakModel(
           id: maps[i]['id'],

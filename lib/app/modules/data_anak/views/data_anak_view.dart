@@ -66,6 +66,21 @@ class DataAnakView extends GetView<DataAnakController> {
                   const SizedBox(
                     height: 20.0,
                   ),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Cari Data Anak...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    onChanged: (value) => controller.getAllByIdMother(
+                        controller.ibuModelArgument.id!,
+                        searchTerm: value),
+                  ),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
                   Container(
                     height: MediaQuery.of(context).size.height - 300,
                     child: SingleChildScrollView(
@@ -305,7 +320,7 @@ class DataAnakView extends GetView<DataAnakController> {
               TextField(
                 controller: ageController,
                 decoration: const InputDecoration(
-                  labelText: 'Umur Anak',
+                  labelText: 'Umur Anak (0-24 Bulan)',
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[

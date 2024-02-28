@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:stunting_app/models/ibu_model.dart';
@@ -88,6 +89,10 @@ class DataIbuView extends GetView<DataIbuController> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^[a-z A-Z\s]*$')),
+                  ],
                   onChanged: (value) =>
                       controller.getAllMothers(searchTerm: value),
                 ),
@@ -103,78 +108,93 @@ class DataIbuView extends GetView<DataIbuController> {
                           : GetBuilder<DataIbuController>(
                               init: DataIbuController(),
                               builder: (controller) {
-                                return ListView.builder(
-                                  itemCount: controller.listDataIbu.length,
-                                  shrinkWrap: true,
-                                  physics: const ScrollPhysics(),
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    var item = controller.listDataIbu[index];
-                                    return Card(
-                                      child: ListTile(
-                                        leading: CircleAvatar(
-                                          backgroundColor: Colors.grey[200],
-                                          backgroundImage: const NetworkImage(
-                                            "https://i.ibb.co/QrTHd59/woman.jpg",
+                                if (controller.listDataIbu.isEmpty) {
+                                  return Center(
+                                    child: Text(
+                                      'Data Ibu Tidak Ditemukan',
+                                      style:
+                                          poppinsBlack.copyWith(fontSize: 16),
+                                    ),
+                                  );
+                                } else {
+                                  return ListView.builder(
+                                    itemCount: controller.listDataIbu.length,
+                                    shrinkWrap: true,
+                                    physics: const ScrollPhysics(),
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      var item = controller.listDataIbu[index];
+                                      return Card(
+                                        child: ListTile(
+                                          leading: CircleAvatar(
+                                            backgroundColor: Colors.grey[200],
+                                            backgroundImage: const NetworkImage(
+                                              "https://i.ibb.co/QrTHd59/woman.jpg",
+                                            ),
+                                          ),
+                                          title: Text(
+                                            "${item.namaIbu}",
+                                            style: poppinsBlack.copyWith(
+                                                fontSize: 16),
+                                          ),
+                                          subtitle: Text(
+                                            item.namaIbu as String,
+                                          ),
+                                          trailing: Wrap(
+                                            spacing:
+                                                14, // space between two icons
+                                            children: <Widget>[
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Get.defaultDialog(
+                                                    title: 'Hapus Data',
+                                                    middleText:
+                                                        'Apakah anda yakin ingin menghapus data ini?\nData yang dihapus tidak dapat dikembalikan.',
+                                                    textConfirm: 'Ya',
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    textCancel: 'Tidak',
+                                                    confirmTextColor:
+                                                        Colors.white,
+                                                    buttonColor: pinkColorBold,
+                                                    cancelTextColor:
+                                                        Colors.black,
+                                                    onConfirm: () {
+                                                      controller
+                                                          .deleteMotherData(
+                                                              item.id!);
+                                                      controller
+                                                          .getAllMothers();
+                                                      Get.back();
+                                                    },
+                                                  );
+                                                },
+                                                child: Icon(
+                                                  Icons.delete,
+                                                  color: pinkColorPrimer,
+                                                ),
+                                              ),
+                                              InkWell(
+                                                  onTap: () => editMother(
+                                                      context,
+                                                      controller
+                                                          .listDataIbu[index]),
+                                                  child:
+                                                      const Icon(Icons.edit)),
+                                              InkWell(
+                                                  onTap: () => Get.toNamed(
+                                                        '/data-anak',
+                                                        arguments: item,
+                                                      ),
+                                                  child: Icon(
+                                                      Icons.arrow_forward_ios)),
+                                            ],
                                           ),
                                         ),
-                                        title: Text(
-                                          "${item.namaIbu}",
-                                          style: poppinsBlack.copyWith(
-                                              fontSize: 16),
-                                        ),
-                                        subtitle: Text(
-                                          item.namaIbu as String,
-                                        ),
-                                        trailing: Wrap(
-                                          spacing:
-                                              14, // space between two icons
-                                          children: <Widget>[
-                                            GestureDetector(
-                                              onTap: () {
-                                                Get.defaultDialog(
-                                                  title: 'Hapus Data',
-                                                  middleText:
-                                                      'Apakah anda yakin ingin menghapus data ini?\nData yang dihapus tidak dapat dikembalikan.',
-                                                  textConfirm: 'Ya',
-                                                  backgroundColor: Colors.white,
-                                                  textCancel: 'Tidak',
-                                                  confirmTextColor:
-                                                      Colors.white,
-                                                  buttonColor: pinkColorBold,
-                                                  cancelTextColor: Colors.black,
-                                                  onConfirm: () {
-                                                    controller.deleteMotherData(
-                                                        item.id!);
-                                                    controller.getAllMothers();
-                                                    Get.back();
-                                                  },
-                                                );
-                                              },
-                                              child: Icon(
-                                                Icons.delete,
-                                                color: pinkColorPrimer,
-                                              ),
-                                            ),
-                                            InkWell(
-                                                onTap: () => editMother(
-                                                    context,
-                                                    controller
-                                                        .listDataIbu[index]),
-                                                child: const Icon(Icons.edit)),
-                                            InkWell(
-                                                onTap: () => Get.toNamed(
-                                                      '/data-anak',
-                                                      arguments: item,
-                                                    ),
-                                                child: Icon(
-                                                    Icons.arrow_forward_ios)),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
+                                      );
+                                    },
+                                  );
+                                }
                               },
                             ),
                     ),
@@ -201,6 +221,9 @@ class DataIbuView extends GetView<DataIbuController> {
             decoration: const InputDecoration(
               labelText: 'Nama Ibu',
             ),
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.allow(RegExp(r'^[a-z A-Z\s]*$')),
+            ],
             onChanged: (value) => {
               nameController.text = value.toUpperCase(),
               nameController.selection = TextSelection.fromPosition(
@@ -243,6 +266,9 @@ class DataIbuView extends GetView<DataIbuController> {
           content: TextField(
             controller: motherNameController,
             decoration: const InputDecoration(hintText: "Mother's Name"),
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.allow(RegExp(r'^[a-z A-Z\s]*$')),
+            ],
             onChanged: (value) => {
               motherNameController.text = value.toUpperCase(),
               motherNameController.selection = TextSelection.fromPosition(
